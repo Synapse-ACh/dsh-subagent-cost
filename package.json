@@ -1,7 +1,7 @@
 {
   "name": "dsh-subagent-cost",
-  "version": "0.1.3",
-  "description": "DSH Web plugin: a dock pill and per-turn panel counting the subagent sessions a conversation spawned and what they cost, in CNY.",
+  "version": "0.1.4",
+  "description": "DSH Web plugin: a dock pill and per-turn panel counting the subagent sessions a conversation spawned and what they cost, in CNY. · DSH 网页插件：在输入框工具条上统计本会话派出的子智能体数量与人民币花费，并按 turn 分组。",
   "type": "module",
   "license": "MIT",
   "author": "Synapse",
@@ -18,7 +18,10 @@
     "deepseek-harness",
     "subagent",
     "token-usage",
-    "cost"
+    "cost",
+    "子智能体",
+    "费用统计",
+    "token用量"
   ],
   "exports": {
     ".": "./lib/index.js",

@@ -2,6 +2,8 @@
 
 A DSH (DeepSeek Harness) Web plugin: counts the **subagent sessions your conversation spawned**, sums their tokens, prices them in CNY, and groups them by the parent conversation's **turn**.
 
+一个 DSH（DeepSeek Harness）网页插件：统计本会话派出的**子智能体会话**，汇总它们的 token 与人民币花费，并按父会话的 **turn** 分组展示。
+
 ```
 ● 3 subagents · ¥0.42
 ```
