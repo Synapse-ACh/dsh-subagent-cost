@@ -25,19 +25,22 @@ The pill's dot: blue = some subagent still running, green = all finished, grey =
 
 ## Install
 
-The plugin is not on npm. Clone it and install the bundle from that directory:
+The plugin is not on npm yet. Install it straight from GitHub — no clone step, the spec is resolved by pnpm:
 
 ```
-git clone https://github.com/bianshuyang3-prog/dsh-subagent-cost
+# cli / web profiles
+dsh plugin --profile <profile> add github:bianshuyang3-prog/dsh-subagent-cost
 ```
 
-then, from a DSH conversation:
+From a DSH conversation the same spec works through the plugin manager:
 
 ```
-plugin_manager action:install_bundle target:<absolute path to the clone>
+plugin_manager action:install_bundle target:github:bianshuyang3-prog/dsh-subagent-cost
 ```
 
-The Desktop profile is managed by the Electron app, so the `dsh plugin --profile …` CLI refuses it — use the plugin manager (in-app, or the tool above) instead.
+The Desktop profile is managed by the Electron app, so the `dsh plugin --profile …` CLI refuses it — use the in-app plugin manager (paste `github:bianshuyang3-prog/dsh-subagent-cost` into its install field) or the tool above.
+
+Prefer a local checkout? `git clone` the repo and pass the absolute path of the directory instead of the spec.
 
 Refresh the browser page once after installing: the host half restarts by itself, but the client half (the dock pill) is loaded by the Web UI and needs a reload.
 
