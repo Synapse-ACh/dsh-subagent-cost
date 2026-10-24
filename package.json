@@ -1,6 +1,6 @@
 {
   "name": "dsh-subagent-cost",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "DSH Web plugin: a dock pill and per-turn panel counting the subagent sessions a conversation spawned and what they cost, in CNY.",
   "type": "module",
   "license": "MIT",
