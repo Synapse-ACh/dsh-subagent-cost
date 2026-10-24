@@ -1,0 +1,3 @@
+- insert:
+    - id: subagent-cost
+      name: 'dsh-subagent-cost'

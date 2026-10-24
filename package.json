@@ -1,0 +1,44 @@
+{
+  "name": "dsh-subagent-cost",
+  "version": "0.1.0",
+  "description": "DSH Web plugin: a dock pill and per-turn panel counting the subagent sessions a conversation spawned and what they cost, in CNY.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Synapse (bianshuyang3-prog)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bianshuyang3-prog/dsh-subagent-cost.git"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "subagent",
+    "token-usage",
+    "cost"
+  ],
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./cost": "./lib/cost.js",
+    "./aggregate": "./lib/aggregate.js"
+  },
+  "files": [
+    "lib/*.js",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
+    }
+  }
+}
