@@ -18,7 +18,7 @@ The panel it opens, grouped by turn, with per-child tokens and cost / 点开后�
 ● 3 subagents · ¥0.42
 ```
 
-Click the pill and you get a panel:
+Click the pill and you get a panel / 点开药丸得到这样的面板：
 
 ```
 Subagent usage                                  ¥0.4213
@@ -33,36 +33,47 @@ Estimated with DeepSeek V4.1 peak/off-peak pricing (CNY / 1M tokens)
 
 The pill's dot: blue = some subagent still running, green = all finished, grey = this conversation has not spawned any, red = read failed.
 
-「子智能体用量」界面说明见文末 [中文说明](#中文说明)。
+药丸上的圆点：蓝＝有子智能体在运行，绿＝全部结束，灰＝本会话没派发过，红＝读取失败。
 
-## Install
+## Install / 安装
 
-The plugin is not on npm yet. Install it straight from GitHub — no clone step, the spec is resolved by pnpm:
+From npm (recommended):
 
 ```
 # cli / web profiles
+dsh plugin --profile <profile> add dsh-subagent-cost
+```
+
+Straight from GitHub, if you want the tip of `main`:
+
+```
 dsh plugin --profile <profile> add github:Synapse-ACh/dsh-subagent-cost
 ```
 
-From a DSH conversation the same spec works through the plugin manager:
+From a DSH conversation both specs work through the plugin manager:
 
 ```
+plugin_manager action:install_bundle target:dsh-subagent-cost
 plugin_manager action:install_bundle target:github:Synapse-ACh/dsh-subagent-cost
 ```
 
-The Desktop profile is managed by the Electron app, so the `dsh plugin --profile …` CLI refuses it — use the in-app plugin manager (paste `github:Synapse-ACh/dsh-subagent-cost` into its install field) or the tool above.
+The Desktop profile is managed by the Electron app, so the `dsh plugin --profile …` CLI refuses it — use the in-app plugin manager (paste `dsh-subagent-cost` into its install field) or the tool above.
 
 Prefer a local checkout? `git clone` the repo and pass the absolute path of the directory instead of the spec.
 
 Refresh the browser page once after installing: the host half restarts by itself, but the client half (the dock pill) is loaded by the Web UI and needs a reload.
 
-## How "one task" is decided
+**中文：** 推荐直接用 npm 安装（`dsh plugin --profile <profile> add dsh-subagent-cost`），想跟 `main` 最新代码就用 `github:Synapse-ACh/dsh-subagent-cost`；在对话里也可以让 `plugin_manager` 装这两个 spec 中的任意一个。Desktop profile 由 Electron 应用托管，`dsh plugin --profile …` 命令行会拒绝它——请用应用内的插件管理器，把 `dsh-subagent-cost` 粘进安装框，或者用上面的工具调用。想用本地仓库的话，`git clone` 之后把该目录的绝对路径当作 spec 传进去。装完刷新一次浏览器页面：宿主半会自己重启，但客户端半（药丸）是 Web UI 加载的，需要 reload。
+
+## How "one task" is decided / 「一次任务」怎么切
 
 By **turn of the parent conversation**. The parent session log carries `subagent/catalog` events that name each `childId`, and `turn/start` events that carry `turn`; every catalog event is attributed to the most recent `turn/start` before it. So "you send one message → every subagent it dispatched" naturally forms one group, and multiple batches inside one conversation do not bleed into each other.
 
 For older parent logs without catalog events the plugin falls back to `ctx.subagents.listChildren(parentId)`; those children land under "unattributed turn".
 
-## Metering and pricing
+**中文：** 按**父会话的 turn** 切。父会话日志里带 `childId` 的是 `subagent/catalog` 事件，带 `turn` 的是 `turn/start` 事件；每条 catalog 事件归到它之前最近的那个 `turn/start`——「你发一条消息 → 它派出的所有子智能体」自然成一组，同一会话里的多批派工不会互相串。更早的父会话日志没有 catalog 事件时，插件回落到 `ctx.subagents.listChildren(parentId)`，这些子智能体落到「未归轮」分组下。
+
+## Metering and pricing / 计量与计价
 
 - A subagent is an **independent session**; its cost only counts the `assistant/message.data.usage` samples it produced itself.
 - Forked child sessions (`isSeeded`) replay the parent's events as a seed. Those tokens are on the parent's bill, so folding starts after `inheritedEventCount`.
@@ -70,7 +81,15 @@ For older parent logs without catalog events the plugin falls back to `ctx.subag
 - Token buckets are disjoint: `inputTokens` is cache-miss input, `cacheReadTokens` is billed at the cache-hit rate (~1/50 of the miss rate), `cacheWriteTokens` at the write rate, `outputTokens` at the output rate.
 - The numbers are **estimates**: same billing rules as the official invoice, but not the invoice (retries and failed requests are not represented).
 
-## Data sources and performance
+**中文：**
+
+- 子智能体是**独立 session**，只算它自己产生的 `assistant/message.data.usage`。
+- fork 出来的子会话（`isSeeded`）会把父会话事件当 seed 重放，这些 token 已经记在父会话账单上，所以折叠从 `inheritedEventCount` 之后才开始。
+- 计价模块 vendored 自 `@kidli1412/dsh-session-cost` 的 `lib/cost.js`（MIT）：逐条事件按**该事件发生时刻**生效的峰谷时段计价（北京时间工作日 09:00–12:00、14:00–18:00 为高峰），按 `provider/model` 取价。
+- token 各桶互不重叠：`inputTokens` 是未命中缓存的输入，`cacheReadTokens` 按命中缓存价（约为未命中价的 1/50），`cacheWriteTokens` 按写入价，`outputTokens` 按输出价。
+- 数字是**估算**：与官方账单计价规则一致，但不等价于账单（重试和失败请求不在此列）。
+
+## Data sources and performance / 数据来源与性能
 
 The host half registers exactly one read-only endpoint:
 
@@ -86,7 +105,15 @@ with a loopback check (peer socket must be 127.0.0.1/::1 and the `Host` header m
 - Measured: for a parent with 38 subagents and 546k tokens, the disk path takes 0.19 s and `sessionQuery` takes 9.7 s; both paths agree to the last digit (545,792 tokens / ¥1.32122364).
 - Incremental: each child keeps a fold state (`state.consumed`) and only new events are processed; a child whose log ends with `turn/end` is frozen and revalidated every 5 minutes. A 30 s poll therefore never re-scans whole logs.
 
-## Layout
+**中文：** 宿主半只注册一个只读端点 `GET /api/subagent-cost/summary?session=<父会话 id>`，带 loopback 校验（对端 socket 必须是 127.0.0.1/::1，且 `Host` 头是本机）——其余一律 403。
+
+- 父会话：`ctx.sessionQuery.readSession(parentId)`（活会话优先，否则读持久化），只读一次，用于取 catalog 事件和 turn 边界。
+- 子会话：**直接读磁盘**，`$DSH_HOME/sessions/<workspace>/<sessionId>/session.v4.jsonl.zstd`，按 zstd 帧魔数（`28 B5 2F FD`）切开逐帧解压。这正是本插件要绕开的坑：Node 自带的 `zstdDecompressSync` / `createZstdDecompress()` 只解**第一帧**（53 KB 的日志只出 279 字节），不逐帧解压统计会全是 0。
+- 三种情况回落到 `sessionQuery.readSession`：日志文件缺失、解不开、或 fork 出来的子会话（`isSeeded`，需要 `inheritedEventCount` 跳过 seed）。重放是持久化且串行的，约 130 ms/会话——38 个子会话约 5 s——所以只做兜底。
+- 实测：38 个子智能体、54.6 万 token 的父会话，走磁盘 0.19 s，走 `sessionQuery` 9.7 s，两边结果逐位一致（545,792 tokens / ¥1.32122364）。
+- 增量：每个子会话保留 fold 状态（`state.consumed`），只处理新事件；日志以 `turn/end` 结尾的子会话会被冻结，每 5 分钟才重新校验。所以 30 秒轮询不会反复重扫整份日志。
+
+## Layout / 目录结构
 
 ```
 lib/index.js      host half: registers /api/subagent-cost/summary
@@ -96,29 +123,28 @@ lib/cost.js       vendored pricing module (from @kidli1412/dsh-session-cost, MIT
 test/local-summary.mjs  offline check: aggregates $DSH_HOME/sessions directly
 ```
 
-Offline check (no harness needed):
+- `lib/index.js` — 宿主半：注册 `/api/subagent-cost/summary`。
+- `lib/client.js` — 客户端半：手写的 `__ModuleLoader__` bundle（药丸 + 面板）。
+- `lib/aggregate.js` — 纯函数：turn/catalog 扫描、子会话折叠、汇总。
+- `lib/cost.js` — vendored 计价模块（来自 `@kidli1412/dsh-session-cost`，MIT）。
+- `test/local-summary.mjs` — 离线校验：直接聚合 `$DSH_HOME/sessions`。
+
+## Offline check / 离线校验
+
+No harness needed / 不需要启动 harness：
 
 ```
-node test/local-summary.mjs                    # picks the parent with the most subagents
-node test/local-summary.mjs <parent-session-id>  # explicit parent
+node test/local-summary.mjs                    # picks the parent with the most subagents / 选子智能体最多的父会话
+node test/local-summary.mjs <parent-session-id>  # explicit parent / 指定父会话
 ```
 
-## 中文说明
-
-统计**当前会话派发出去的子智能体**用了多少 token、折合多少钱（CNY），并按「父会话的轮次」分组。
-
-- **显示**：对话输入框下方状态条（`conversation.composer.dock`）多一个药丸 `● 3 个子智能体 · ¥0.42`；点击展开面板，按轮次列出每个子智能体（`[agentPreset]` 标签 · label · token 数 · 估算费用），底部是本次合计。药丸圆点：蓝＝有子智能体在运行，绿＝全部结束，灰＝本会话没派发过，红＝读取失败。
-- **「一次任务」怎么切**：按父会话的 turn 切。父会话日志里 `subagent/catalog` 事件带 `childId`，`turn/start` 事件带 `turn`，每条 catalog 归到它之前最近的那个 `turn/start`——「你发一条消息 → 它派出的所有子智能体」自然成组。
-- **计量**：子智能体是独立 session，只算它自己 `assistant/message.data.usage` 的用量；fork 出来的子会话（`isSeeded`）把父会话事件当 seed 重放，这部分从 `inheritedEventCount` 之后才开始折叠。计价模块 vendored 自 `@kidli1412/dsh-session-cost`（MIT），逐条事件按发生时刻判峰谷。
-- **数据来源**：宿主半只注册 `GET /api/subagent-cost/summary?session=<父会话 id>`（带 loopback 校验，非本机 403）。子会话直接读磁盘日志 `$DSH_HOME/sessions/<workspace>/<sessionId>/session.v4.jsonl.zstd`，按 zstd 帧魔数 `28 B5 2F FD` 切开逐帧解压——Node 自带的 `zstdDecompressSync`/`createZstdDecompress()` 只解第一帧（53KB 日志只出 279 字节），不逐帧解压统计全是 0。文件缺失、解不开、或 fork 子会话时才回落 `sessionQuery.readSession`。
-- **性能**：38 个子智能体、54.6 万 token 的父会话，走磁盘 0.19s，走 `sessionQuery` 9.7s，两边结果完全一致。每个子会话保留 fold 状态只处理新事件，已结束的每 5 分钟才重新校验，所以 30 秒轮询不会反复重扫日志。
-- **数字是估算**：与官方账单口径一致，但不等价于账单（重试、失败请求不在此列）。
-
-## Credits
+## Credits / 致谢
 
 - Pricing and usage-attribution semantics: `@kidli1412/dsh-session-cost` (MIT), itself mirroring the `tokenUsage` projection of `dsh-token-meter`, with a nod to `dsh-usage-stats` (MIT © Ychris12138).
 - Parent/child mapping leans on the harness's own `subagent/catalog` session events.
 
-## License
+计价与用量归属口径来自 `@kidli1412/dsh-session-cost`（MIT），它本身对齐 `dsh-token-meter` 的 `tokenUsage` 投影，并参考了 `dsh-usage-stats`（MIT © Ychris12138）；父子关系依赖 harness 自带的 `subagent/catalog` 会话事件。
 
-MIT — see [LICENSE](LICENSE).
+## License / 许可
+
+MIT — see [LICENSE](LICENSE) / 见 [LICENSE](LICENSE)。
