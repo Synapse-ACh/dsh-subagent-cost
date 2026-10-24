@@ -4,10 +4,10 @@
   "description": "DSH Web plugin: a dock pill and per-turn panel counting the subagent sessions a conversation spawned and what they cost, in CNY.",
   "type": "module",
   "license": "MIT",
-  "author": "Synapse (bianshuyang3-prog)",
+  "author": "Synapse",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bianshuyang3-prog/dsh-subagent-cost.git"
+    "url": "git+https://github.com/Synapse-ACh/dsh-subagent-cost.git"
   },
   "engines": {
     "dsh": ">=0.2.1-rc.2 <0.3.0"
@@ -43,5 +43,9 @@
         "@deepseek-ai/dsh-client-ui-conversation"
       ]
     }
+  },
+  "homepage": "https://github.com/Synapse-ACh/dsh-subagent-cost#readme",
+  "bugs": {
+    "url": "https://github.com/Synapse-ACh/dsh-subagent-cost/issues"
   }
 }

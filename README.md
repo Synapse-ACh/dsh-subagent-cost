@@ -29,16 +29,16 @@ The plugin is not on npm yet. Install it straight from GitHub — no clone step,
 
 ```
 # cli / web profiles
-dsh plugin --profile <profile> add github:bianshuyang3-prog/dsh-subagent-cost
+dsh plugin --profile <profile> add github:Synapse-ACh/dsh-subagent-cost
 ```
 
 From a DSH conversation the same spec works through the plugin manager:
 
 ```
-plugin_manager action:install_bundle target:github:bianshuyang3-prog/dsh-subagent-cost
+plugin_manager action:install_bundle target:github:Synapse-ACh/dsh-subagent-cost
 ```
 
-The Desktop profile is managed by the Electron app, so the `dsh plugin --profile …` CLI refuses it — use the in-app plugin manager (paste `github:bianshuyang3-prog/dsh-subagent-cost` into its install field) or the tool above.
+The Desktop profile is managed by the Electron app, so the `dsh plugin --profile …` CLI refuses it — use the in-app plugin manager (paste `github:Synapse-ACh/dsh-subagent-cost` into its install field) or the tool above.
 
 Prefer a local checkout? `git clone` the repo and pass the absolute path of the directory instead of the spec.
 
