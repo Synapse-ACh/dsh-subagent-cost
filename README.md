@@ -4,6 +4,16 @@ A DSH (DeepSeek Harness) Web plugin: counts the **subagent sessions your convers
 
 一个 DSH（DeepSeek Harness）网页插件：统计本会话派出的**子智能体会话**，汇总它们的 token 与人民币花费，并按父会话的 **turn** 分组展示。
 
+## Screenshots / 截图
+
+The dock pill, in the composer toolbar / 输入框工具条上的药丸：
+
+![Dock pill: 37 subagents · ¥1.30](https://raw.githubusercontent.com/Synapse-ACh/dsh-subagent-cost/main/assets/screenshot-dock.png)
+
+The panel it opens, grouped by turn, with per-child tokens and cost / 点开后的面板，按 turn 分组、逐个列出 token 与花费：
+
+![Per-turn summary panel: 37 subagents, 514.4k tokens, ¥1.2981](https://raw.githubusercontent.com/Synapse-ACh/dsh-subagent-cost/main/assets/screenshot-panel.png)
+
 ```
 ● 3 subagents · ¥0.42
 ```
