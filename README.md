@@ -63,7 +63,7 @@ Prefer a local checkout? `git clone` the repo and pass the absolute path of the 
 
 Refresh the browser page once after installing: the host half restarts by itself, but the client half (the dock pill) is loaded by the Web UI and needs a reload.
 
-**中文：** 推荐直接用 npm 安装（`dsh plugin --profile <profile> add dsh-subagent-cost`），想跟 `main` 最新代码就用 `github:Synapse-ACh/dsh-subagent-cost`；在对话里也可以让 `plugin_manager` 装这两个 spec 中的任意一个。Desktop profile 由 Electron 应用托管，`dsh plugin --profile …` 命令行会拒绝它——请用应用内的插件管理器，把 `dsh-subagent-cost` 粘进安装框，或者用上面的工具调用。想用本地仓库的话，`git clone` 之后把该目录的绝对路径当作 spec 传进去。装完刷新一次浏览器页面：宿主半会自己重启，但客户端半（药丸）是 Web UI 加载的，需要 reload。
+推荐直接用 npm 安装（`dsh plugin --profile <profile> add dsh-subagent-cost`），想跟 `main` 最新代码就用 `github:Synapse-ACh/dsh-subagent-cost`；在对话里也可以让 `plugin_manager` 装这两个 spec 中的任意一个。Desktop profile 由 Electron 应用托管，`dsh plugin --profile …` 命令行会拒绝它——请用应用内的插件管理器，把 `dsh-subagent-cost` 粘进安装框，或者用上面的工具调用。想用本地仓库的话，`git clone` 之后把该目录的绝对路径当作 spec 传进去。装完刷新一次浏览器页面：宿主半会自己重启，但客户端半（药丸）是 Web UI 加载的，需要 reload。
 
 ## How "one task" is decided / 「一次任务」怎么切
 
@@ -71,7 +71,7 @@ By **turn of the parent conversation**. The parent session log carries `subagent
 
 For older parent logs without catalog events the plugin falls back to `ctx.subagents.listChildren(parentId)`; those children land under "unattributed turn".
 
-**中文：** 按**父会话的 turn** 切。父会话日志里带 `childId` 的是 `subagent/catalog` 事件，带 `turn` 的是 `turn/start` 事件；每条 catalog 事件归到它之前最近的那个 `turn/start`——「你发一条消息 → 它派出的所有子智能体」自然成一组，同一会话里的多批派工不会互相串。更早的父会话日志没有 catalog 事件时，插件回落到 `ctx.subagents.listChildren(parentId)`，这些子智能体落到「未归轮」分组下。
+按**父会话的 turn** 切。父会话日志里带 `childId` 的是 `subagent/catalog` 事件，带 `turn` 的是 `turn/start` 事件；每条 catalog 事件归到它之前最近的那个 `turn/start`——「你发一条消息 → 它派出的所有子智能体」自然成一组，同一会话里的多批派工不会互相串。更早的父会话日志没有 catalog 事件时，插件回落到 `ctx.subagents.listChildren(parentId)`，这些子智能体落到「未归轮」分组下。
 
 ## Metering and pricing / 计量与计价
 
@@ -80,8 +80,6 @@ For older parent logs without catalog events the plugin falls back to `ctx.subag
 - The pricing module is vendored from `@kidli1412/dsh-session-cost`'s `lib/cost.js` (MIT): each event is priced at the peak/off-peak window **in force at that event's timestamp** (Beijing time, weekdays 09:00–12:00 and 14:00–18:00 are peak), per `provider/model`.
 - Token buckets are disjoint: `inputTokens` is cache-miss input, `cacheReadTokens` is billed at the cache-hit rate (~1/50 of the miss rate), `cacheWriteTokens` at the write rate, `outputTokens` at the output rate.
 - The numbers are **estimates**: same billing rules as the official invoice, but not the invoice (retries and failed requests are not represented).
-
-**中文：**
 
 - 子智能体是**独立 session**，只算它自己产生的 `assistant/message.data.usage`。
 - fork 出来的子会话（`isSeeded`）会把父会话事件当 seed 重放，这些 token 已经记在父会话账单上，所以折叠从 `inheritedEventCount` 之后才开始。
@@ -105,7 +103,7 @@ with a loopback check (peer socket must be 127.0.0.1/::1 and the `Host` header m
 - Measured: for a parent with 38 subagents and 546k tokens, the disk path takes 0.19 s and `sessionQuery` takes 9.7 s; both paths agree to the last digit (545,792 tokens / ¥1.32122364).
 - Incremental: each child keeps a fold state (`state.consumed`) and only new events are processed; a child whose log ends with `turn/end` is frozen and revalidated every 5 minutes. A 30 s poll therefore never re-scans whole logs.
 
-**中文：** 宿主半只注册一个只读端点 `GET /api/subagent-cost/summary?session=<父会话 id>`，带 loopback 校验（对端 socket 必须是 127.0.0.1/::1，且 `Host` 头是本机）——其余一律 403。
+宿主半只注册一个只读端点 `GET /api/subagent-cost/summary?session=<父会话 id>`，带 loopback 校验（对端 socket 必须是 127.0.0.1/::1，且 `Host` 头是本机）——其余一律 403。
 
 - 父会话：`ctx.sessionQuery.readSession(parentId)`（活会话优先，否则读持久化），只读一次，用于取 catalog 事件和 turn 边界。
 - 子会话：**直接读磁盘**，`$DSH_HOME/sessions/<workspace>/<sessionId>/session.v4.jsonl.zstd`，按 zstd 帧魔数（`28 B5 2F FD`）切开逐帧解压。这正是本插件要绕开的坑：Node 自带的 `zstdDecompressSync` / `createZstdDecompress()` 只解**第一帧**（53 KB 的日志只出 279 字节），不逐帧解压统计会全是 0。
